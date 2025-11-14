@@ -89,7 +89,12 @@ P.S. You can delete this when you're done too. It's your config now! :)
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
-
+-- load all your custom mappings:
+require 'custom.keymaps'
+require 'custom.autoformat'
+require 'custom.c_indent'  -- C/C++ indentation for CS50x
+require 'custom.indent_toggle'  -- Toggle command for C/C++ indentation methods
+-- require 'custom.student_notes'  -- DISABLED: Reverted to simple keyword approach (NOTE:, LEARNING:, TODO:)
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
 
@@ -663,7 +668,17 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {
+          capabilities = {
+            textDocument = {
+              completion = {
+                completionItem = {
+                  snippetSupport = false,  -- Disable snippets for clean text completion
+                },
+              },
+            },
+          },
+        },
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -760,6 +775,8 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        c = { 'clang_format' },      -- CS50x: Professional C formatting
+        cpp = { 'clang_format' },    -- CS50x: Professional C++ formatting
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -819,15 +836,16 @@ require('lazy').setup({
         --
         -- No, but seriously. Please read `:help ins-completion`, it is really good!
         --
-        -- All presets have the following mappings:
-        -- <tab>/<s-tab>: move to right/left of your snippet expansion
+        -- Changed to 'super-tab' for CS50 learning workflow:
+        -- <tab>: Accept completion or indent
+        -- <s-tab>: Select previous item
         -- <c-space>: Open menu or open docs if already open
         -- <c-n>/<c-p> or <up>/<down>: Select next/previous item
         -- <c-e>: Hide menu
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        preset = 'super-tab',
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -846,7 +864,8 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'lazydev' },
+        -- Removed 'snippets' for CS50 learning workflow (focus on understanding, not templates)
+        default = { 'lsp', 'path', 'lazydev' },
         providers = {
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
         },
@@ -864,7 +883,7 @@ require('lazy').setup({
       fuzzy = { implementation = 'lua' },
 
       -- Shows a signature help window while you type arguments for a function
-      signature = { enabled = true },
+      signature = { enabled = false },  -- Disabled for cleaner learning experience
     },
   },
 
@@ -941,12 +960,14 @@ require('lazy').setup({
       auto_install = true,
       highlight = {
         enable = true,
+        -- Tree-sitter re-enabled for C (January 9, 2025)
+        -- Reverted from complex student notes system to simple keyword approach
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
       },
-      indent = { enable = true, disable = { 'ruby' } },
+      indent = { enable = true, disable = { 'ruby', 'c', 'cpp' } },  -- Let cindent handle C/C++ for predictable behavior
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:

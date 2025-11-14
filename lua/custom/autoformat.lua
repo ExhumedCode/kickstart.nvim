@@ -1,0 +1,9 @@
+-- Run LSP-based formatting on save for C/C++
+-- DISABLED for CS50x learning - format manually with style50
+-- vim.api.nvim_create_autocmd('BufWritePre', {
+--   pattern = { '*.c', '*.cpp', '*.h', '*.hpp', '*.cs' },
+--   callback = function()
+--     -- sync format so buffer is written already formatted
+--     vim.lsp.buf.format { async = false }
+--   end,
+-- })
